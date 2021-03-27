@@ -1,0 +1,1339 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($http, $filter, $location, spAriaUtil, $window, $scope, spAriaFocusManager, snAnalytics, spAISearchResults) {
+    /* widget controller */
+    var c = this;
+    c.query = "";
+
+    $scope.setCaseScrollListener = function() {
+ var scrollableElement = document.getElementById("scrollable-case");
+		
+			
+        if (scrollableElement) {
+            scrollableElement.onscroll = function() {
+               if(c.data.activeTab == 2) return; //scroll not supported for smes as of now
+                var scrollBottom = scrollableElement.scrollTop + scrollableElement.clientHeight;
+                var threshold = 100;
+                var offset;
+                var total;
+								var shouldCallForScroll = false;
+                switch (c.data.activeTab) {
+                    case 0:
+                        shouldCallForScroll = c.data.cases.length<c.data.caseTotal;
+                       
+                        break;
+                    case 1:
+                        shouldCallForScroll = c.data.knowledgeArticles.length< c.data.knowledgeTotal;
+                        break;
+										case 3:
+                        shouldCallForScroll =c.data.cases.length<c.data.caseTotal||c.data.knowledgeArticles.length< c.data.knowledgeTotal;
+                        break;
+                }
+							 if (
+                    scrollBottom > scrollableElement.scrollHeight - threshold &&
+                    shouldCallForScroll &&
+                    !c.data.scrollCallOut
+                ) {
+								 c.data.query = c.data.query;
+								 c.data.activeTab = c.data.activeTab;
+								 c.data.scrollCallOut = true;
+								 c.data.results = c.data.results;
+								 c.data.cases=c.data.cases;
+								 c.data.knowledgeArticles=c.data.knowledgeArticles;
+								 c.data.caseTotal=c.data.caseTotal;
+								 c.data.knowledgeTotal=c.data.knowledgeTotal;
+								 c.data.currentOffset = c.data.currentOffset+10;
+                 c.server.update();
+                }else{
+									// ignore the paginate call
+								}
+
+            };
+        } else {
+            }
+    };
+  
+	  $scope.setKnowledgeScrollListener = function() {
+ var scrollableElement = document.getElementById("scrollable-knowledge");
+		
+			
+        if (scrollableElement) {
+            scrollableElement.onscroll = function() {
+               if(c.data.activeTab == 2) return; //scroll not supported for smes as of now
+                var scrollBottom = scrollableElement.scrollTop + scrollableElement.clientHeight;
+                var threshold = 100;
+                var offset;
+                var total;
+								var shouldCallForScroll = false;
+                switch (c.data.activeTab) {
+                    case 0:
+                        shouldCallForScroll = c.data.cases.length<c.data.caseTotal;
+                       
+                        break;
+                    case 1:
+                        shouldCallForScroll = c.data.knowledgeArticles.length< c.data.knowledgeTotal;
+                        break;
+										case 3:
+                        shouldCallForScroll =c.data.cases.length<c.data.caseTotal||c.data.knowledgeArticles.length< c.data.knowledgeTotal;
+                        break;
+                }
+						   if (
+                    scrollBottom > scrollableElement.scrollHeight - threshold &&
+                    shouldCallForScroll &&
+                    !c.data.scrollCallOut
+                ) {
+								 c.data.query = c.data.query;
+								 c.data.activeTab = c.data.activeTab;
+								 c.data.scrollCallOut = true;
+								 c.data.results = c.data.results;
+								 c.data.cases=c.data.cases;
+								 c.data.knowledgeArticles=c.data.knowledgeArticles;
+								 c.data.caseTotal=c.data.caseTotal;
+								 c.data.knowledgeTotal=c.data.knowledgeTotal;
+								 c.data.currentOffset = c.data.currentOffset+10;
+                 c.server.update();
+                }else{
+									// ignore the paginate call
+								}
+
+            };
+        } else {
+          }
+    };
+   
+	$scope.setSearchScrollListener = function() {
+ var scrollableElement = document.getElementById("scrollable-search");
+		
+		  if (scrollableElement) {
+            scrollableElement.onscroll = function() {
+               if(c.data.activeTab == 2) return; //scroll not supported for smes as of now
+                var scrollBottom = scrollableElement.scrollTop + scrollableElement.clientHeight;
+                var threshold = 100;
+                var offset;
+                var total;
+								var shouldCallForScroll = false;
+                switch (c.data.activeTab) {
+                    case 0:
+                        shouldCallForScroll = c.data.cases.length<c.data.caseTotal;
+                       
+                        break;
+                    case 1:
+                        shouldCallForScroll = c.data.knowledgeArticles.length< c.data.knowledgeTotal;
+                        break;
+										case 3:
+                        shouldCallForScroll =c.data.cases.length<c.data.caseTotal||c.data.knowledgeArticles.length< c.data.knowledgeTotal;
+                        break;
+                }
+					     if (
+                    scrollBottom > scrollableElement.scrollHeight - threshold &&
+                    shouldCallForScroll &&
+                    !c.data.scrollCallOut
+                ) {
+								 c.data.query = c.data.query;
+								 c.data.activeTab = c.data.activeTab;
+								 c.data.scrollCallOut = true;
+								 c.data.results = c.data.results;
+								 c.data.cases=c.data.cases;
+								 c.data.knowledgeArticles=c.data.knowledgeArticles;
+								 c.data.caseTotal=c.data.caseTotal;
+								 c.data.knowledgeTotal=c.data.knowledgeTotal;
+								 c.data.currentOffset = c.data.currentOffset+10;
+                 c.server.update();
+                }else{
+									// ignore the paginate call
+								}
+
+            };
+        } else {
+        }
+    };
+   
+	
+	
+	$scope.selectCaseTab = function() {
+			c.data.scrollCallOut = false;
+        c.query = "";c.data.results = [];
+			c.data.currentOffset=0;
+								 c.data.cases=[];
+								 c.data.knowledgeArticles=[];
+								 c.data.caseTotal=0;
+								 c.data.knowledgeTotal=0;
+        c.data.query = "Case";
+        c.data.activeTab = 0;
+        c.data.isLoading = true;
+        c.server.update();
+    }
+
+    $scope.selectKnowledgeTab = function() {
+				
+				
+        c.query = "";
+			c.data.results = [];
+			c.data.currentOffset=0;
+								 c.data.cases=[];
+								 c.data.knowledgeArticles=[];
+								 c.data.caseTotal=0;
+								 c.data.knowledgeTotal=0;
+				c.data.scrollCallOut = false;
+        c.data.query = "Knowledge";
+        c.data.activeTab = 1;
+        c.data.isLoading = true;
+        c.server.update();
+    }
+
+    $scope.selectSmeTab = function() {
+       c.data.scrollCallOut = false;
+        c.query = "";
+        c.data.query = "*";c.data.results = [];
+			c.data.currentOffset=0;
+								 c.data.cases=[];
+								 c.data.knowledgeArticles=[];
+								 c.data.caseTotal=0;
+								 c.data.knowledgeTotal=0;
+        c.data.activeTab = 2;
+        c.data.isLoading = true;
+        c.data.smesToQuery = c.data.smesToQuery;
+        c.server.update();
+    }
+
+    $scope.selectSearchTab = function() {
+c.data.scrollCallOut = false;
+        c.query = "";
+        c.data.query = "";c.data.results = [];
+			c.data.currentOffset=0;
+								 c.data.cases=[];
+								 c.data.knowledgeArticles=[];
+								 c.data.caseTotal=0;
+								 c.data.knowledgeTotal=0;
+        c.data.results = [];
+        c.data.activeTab = 3;
+        c.data.cases = [];
+        c.data.knowledgeArticles = [];
+        c.data.caseTotal = 0;
+        c.data.knowledgeTotal = 0;
+        c.data.isLoading = false;
+        c.server.update();
+    }
+
+
+    $scope.isEnter = function(evt) {
+       if (evt.keyCode == 13) {
+            evt.preventDefault();
+            c.performSearch(c.query);
+        }
+
+    };
+
+
+    c.performSearch = function(queryParam) {
+        c.data.query = queryParam;
+        c.data.activeTab = 3;
+        c.data.isLoading = true;
+        c.server.update();
+
+    }
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>* {
+    box-sizing: border-box;
+
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.uib-tab {
+
+
+    a {
+        font-weight: 600;
+    }
+}
+
+.tab-content-container {
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    grid-gap: 25px;
+}
+
+.search-box {
+    position: relative;
+    max-width: 600px;
+    width: 100%;
+    min-width: 300px;
+    flex-grow: 1;
+}
+
+.search-box img.search-icon {
+    height: 16px;
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.search-box input {
+    padding-left: 35px;
+    margin: 7px 0;
+    width: 100%;
+    height: 32px;
+}
+
+.search-box {
+    button.search-btn {
+        position: absolute;
+        right: 0px;
+        top: 7px;
+        height: 32px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        line-height: 1 !important;
+    }
+}
+
+.results-wrapper {
+    width: 100%;
+}
+
+.results-container {
+    padding: 10px 10px;
+    display: flex;
+    min-height: 300px;
+    height: 80vh;
+    max-height: 80vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border: 1px solid #c3c3c3;
+    min-width: 300px;
+    width: 100%;
+  flex-wrap:wrap;
+
+    .placeholder-on-landing {
+        margin: auto;
+    }
+
+    .placeholder-on-loading {
+        margin: auto;
+    }
+
+    .placeholder-on-no-results {
+        margin: auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            margin-bottom: 10px;
+            width: 80%;
+        }
+
+
+    }
+
+}
+
+.knowledge-article {
+    padding-top: 5px;
+
+
+
+}
+
+.knonwledge-article__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+
+}
+
+.knowledge-article__header--content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7px 0px;
+    column-gap: 10px;
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+
+
+    h3 {
+        font-size: 16px;
+        line-height: 1.25;
+        margin: 0;
+        padding: 0;
+
+        a {
+            overflow-wrap: break-word;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .1s linear;
+
+
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+
+    span {
+        background-color: rgb(236, 148, 237);
+        color: rgb(8, 7, 7);
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        line-height: normal;
+        font-size: 12px;
+        padding: 4px 8px;
+        font-weight: 700;
+        border-radius: 15px;
+    }
+}
+
+.knowledge-article__body {
+    margin-right: 12px;
+
+    p {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        color: rgb(62, 62, 60);
+        margin-bottom: 16px;
+    }
+}
+
+.case-item {
+    padding-top: 4px;
+}
+
+.case-item__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+
+}
+
+.case-item__header--content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0px;
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+        font-size: 16px;
+        line-height: 1.25;
+        margin: 0;
+        padding: 0;
+
+        a {
+            overflow-wrap: break-word;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .1s linear;
+
+
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+
+    span {
+        background-color: rgb(241, 207, 91);
+        color: rgb(8, 7, 7);
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        line-height: normal;
+        font-size: 12px;
+        padding: 4px 8px;
+        font-weight: 700;
+        border-radius: 15px;
+    }
+}
+
+.case-item__body {
+    display: grid;
+    grid-template-columns: 40% 30% 30%;
+    grid-gap: 12px;
+
+    div:first-child {
+        p {
+            overflow-wrap: anywhere;
+        }
+    }
+}
+
+//sme item
+.sme-item {
+    padding-top: 4px;
+  color:black;
+}
+
+.sme-item__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+
+}
+
+.sme-item__header--content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0px;
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      font-size: 18px;
+    line-height: 1.25;
+    margin: 0;
+    padding: 0;
+    color: black;
+    text-decoration: underline;
+       
+    }
+
+   
+}
+
+.sme-item__body {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    grid-gap: 15px;
+
+    div.col-item {
+      display:flex;
+      flex-direction:column;
+      grid-gap:7px;
+        p {
+             white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+        }
+    }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>search_console_widget</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Search Console Widget</name>
+        <option_schema/>
+        <public>true</public>
+        <roles/>
+        <script><![CDATA[(function() {
+    data.query = "";
+    data.activeTab = 0; // cases - 0, knowledge -1, sme - 2, search -3
+    data.results = null;
+    data.cases = [];
+    data.knowledgeArticles = [];
+    data.sme = [];
+    data.caseTotal = 0;
+    data.knowledgeTotal = 0;
+    data.smeTotal = 0;
+    data.isLoading = false;
+    data.smesToQuery = null;
+    data.scrollCallOut = false;
+    data.currentOffset = 0;
+
+
+    //perform-search works for knowledge, cases and search tab
+    // SMEs tab has its own method
+    data.performSearch = function(query,
+        offset,
+        callForObject) {
+
+        var caseResponse = {
+            cases: [],
+            caseTotal: 0
+        };
+        var knowledgeResponse = {
+            knowledgeArticles: [],
+            knowledgeTotal: 0
+        }
+        var previousCases = data.cases;
+        var previousKnowledgeArticles = data.knowledgeArticles;
+        var previousResults = data.results;
+
+        if (callForObject.callForCases && (data.caseTotal == 0 && data.cases.length == 0 ? true : data.cases.length < data.caseTotal)) {
+            caseResponse = getCases(query, offset);
+
+            data.cases = caseResponse.cases && caseResponse.cases.map(function(item) {
+                item.isCaseItem = true;
+                var gd = new GlideDate();
+                gd.setValue(item.CreatedDate_dt);
+                item.CreatedDate = gd.getByFormat("dd-MM-yyyy");
+                return item;
+            }).sort(function compare(a, b) {
+                if (a.score > b.score) {
+                    return -1;
+                }
+                if (a.score < b.score) {
+                    return 1;
+                }
+                return 0;
+            });
+
+
+            data.caseTotal = caseResponse.caseTotal;
+            data.smesToQuery = caseResponse.ownerIds.slice(0, Math.min(6, caseResponse.ownerIds.length)).filter(function(val, idx) {
+                if (idx % 2 == 0)
+                    return val;
+            });
+        }
+
+        if (callForObject.callForKnowledgeArticles && (data.knowledgeTotal == 0 && data.knowledgeArticles.length == 0 ? true : data.knowledgeArticles.length < data.knowledgeTotal)) {
+            knowledgeResponse = getKnowledgeArticles(query, offset);
+
+
+            data.knowledgeArticles = knowledgeResponse.knowledgeArticles && knowledgeResponse.knowledgeArticles.map(function(item) {
+                item.isKnowledgeItem = true;
+                return item
+            }).sort(function compare(a, b) {
+                if (a.score > b.score) {
+                    return -1;
+                }
+                if (a.score < b.score) {
+                    return 1;
+                }
+                return 0;
+            });
+
+            data.knowledgeTotal = knowledgeResponse.knowledgeTotal;
+        }
+
+        if (callForObject.callForSme) {
+
+            if (!data.smesToQuery || data.smesToQuery == []) {
+
+
+                caseResponse = getCases(query, offset);
+                data.smesToQuery = caseResponse.ownerIds.slice(0, Math.min(6, caseResponse.ownerIds.length)).filter(function(val, idx) {
+                    if (idx % 2 == 0)
+                        return val;
+                });
+
+            }
+            for (var i = 0; i < data.smesToQuery.length; i++) {
+                var response = getSme(data.smesToQuery[i], 0);
+                data.sme.push({
+                    accounts: processFacets(response.facetFields.AccountId_s),
+                    versions: processFacets(response.facetFields.Fusion_Version__c_s),
+                    products: processFacets(response.facetFields.Product_Line__c_s_lower),
+                    name: data.smesToQuery[i],
+                    Id: Math.random() * 100 + i
+                })
+            }
+
+            return;
+        }
+
+
+
+
+        // we just want cases & knowledge articles in SEARCH tab
+        data.results = [].concat(data.cases).concat(data.knowledgeArticles);
+
+        if (data.results.length > 0) {
+            data.results = data.results.sort(function compare(a, b) {
+                if (a.score > b.score) {
+                    return -1;
+                }
+                if (a.score < b.score) {
+                    return 1;
+                }
+                return 0;
+            });
+
+        }
+        if (data.scrollCallOut) {
+            data.cases = previousCases.concat(data.cases);
+            data.knowledgeArticles = previousKnowledgeArticles.concat(data.knowledgeArticles);
+            data.results = previousResults.concat(data.results);
+            data.scrollCallOut = false;
+        }
+        data.isLoading = false;
+				data.scrollCallOut = false;
+
+    }
+
+    if (input) {
+
+        data.query = input.query;
+        data.activeTab = input.activeTab;
+        data.currentOffset = input.currentOffset ? input.currentOffset : 0;
+       
+			if (input.scrollCallOut) {
+            
+            data.scrollCallOut = input.scrollCallOut;
+            data.results = input.results;
+
+        }
+        if (input.activeTab == 0) {
+            data.cases = input.cases;
+            data.caseTotal = input.caseTotal;
+            if (data.query) {
+                data.performSearch(data.query, data.currentOffset, {
+                    callForCases: true,
+                    callForKnowledgeArticles: false,
+                    callForSme: false
+                });
+
+
+            }
+        }
+        if (input.activeTab == 1) {
+            data.knowledgeArticles = input.knowledgeArticles;
+            data.knowledgeTotal = input.knowledgeTotal;
+            if (data.query) data.performSearch(data.query, data.currentOffset, {
+                callForCases: false,
+                callForKnowledgeArticles: true,
+                callForSme: false
+            });
+        }
+        if (input.activeTab == 2) {
+            data.currentOffset = 0;
+            data.smesToQuery = input.smesToQuery;
+            if (data.query) data.performSearch(data.query, data.currentOffset, {
+                callForCases: false,
+                callForKnowledgeArticles: false,
+                callForSme: true
+            });
+        }
+        if (input.activeTab == 3) {
+            data.currentOffset = 0;
+            data.isLoading = input.isLoading;
+            data.query = input.query || "";
+            data.results = input.results || data.results;
+            data.cases = input.cases || data.cases;
+            data.knowledgeArticles = input.knowledgeArticles || data.knowledgeArticles;
+            data.caseTotal = input.caseTotal != undefined ? input.caseTotal : data.caseTotal;
+            data.knowledgeTotal = input.knowledgeTotal != undefined ? input.knowledgeTotal : data.knowledgeTotal;
+            if (data.query) data.performSearch(data.query, data.currentOffset, {
+                callForCases: true,
+                callForKnowledgeArticles: true,
+                callForSme: false
+            });
+
+
+        }
+
+        var queryInput = input.query;
+        var activeTabInput = input.activeTab;
+        data.query = queryInput;
+        data.activeTab = activeTabInput;
+
+    }
+    if (!input) { //fire query for first tab on widget mount
+        data.query = "Case";
+        data.isLoading = true;
+        data.performSearch(data.query, data.currentOffset, {
+            callForCases: true,
+            callForKnowledgeArticles: false,
+            callForSme: false
+        });
+    }
+
+
+    //------------------------GET CASES -----------------------------//
+    function getCases(caseQuery, caseOffset) {
+        // still todo
+        var query = caseQuery || "*";
+        var offset = caseOffset || "0";
+        var method = "get";
+
+
+        var endpoint = 'https://cse-demo.lucidworkssales.com:443/api/apps/Supp-Demo/query-pipelines/SalesforceCases_QPL/collections/Supp-Demo/select?echoParams%3Dall&wt%3Djson&q=' + encodeURI(query) + '&rows=10&start=' + encodeURI(offset)
+
+
+        var rm = new sn_ws.RESTMessageV2();
+
+
+        rm.setHttpMethod(method);
+
+
+        rm.setEndpoint(endpoint);
+
+
+        var body = {};
+
+
+        rm.setRequestHeader("Content-type", "application/json");
+        rm.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJncm91cHMiOlsiZGVmYXVsdF9ncm91cCIsIndlYmFwcHMtcm9sZSJdLCJzdWIiOiJhcHBpcGhvbnkiLCJpYXQiOjE2MTQ4NjI1MjMxOTUsImlzcyI6IkZ1c2lvbiJ9.PPWgchAj4REloE5H9w3lLQW5leIdfXt-NsHUFaHu_LE");
+
+
+        rm.setRequestBody(body);
+
+
+        var response = rm.execute();
+        if (response.getErrorCode()) {
+            gs.addErrorMessage(response.getErrorMessage());
+            return;
+        }
+
+        var responseBody = new JSON().decode(response.getBody());
+
+        return {
+            cases: responseBody.response.docs,
+            caseTotal: responseBody.response.numFound,
+            ownerIds: responseBody.facet_counts.facet_fields.OwnerId_s
+        }
+
+    }
+
+    //------------------------GET KNOWLEDGE ARTICLES ----------------//
+    function getKnowledgeArticles(knowledgeQuery, knowledgeOffset) {
+        var query = knowledgeQuery || "*";
+        var offset = knowledgeOffset || "0";
+        var method = "get";
+
+
+        var endpoint = 'https://cse-demo.lucidworkssales.com:443/api/apps/Supp-Demo/query-pipelines/kb2/collections/Supp-Demo/select?echoParams=all&wt=json&q=' + encodeURI(query) + '&start=' + encodeURI(offset) + '&f=%5B%22docs_lucidworks%22%5D%5B%22Lucidworks+Docs%22%5D5%3A42%5B%22lucene_solr_7_8%22%5D%5B%22Solr+Docs%22%5D&q%3Dattr_title_%3A*'
+
+
+        var rm = new sn_ws.RESTMessageV2();
+
+
+        rm.setHttpMethod(method);
+
+
+        rm.setEndpoint(endpoint);
+
+
+        var body = {};
+
+
+        rm.setRequestHeader("Content-type", "application/json");
+        rm.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJncm91cHMiOlsiZGVmYXVsdF9ncm91cCIsIndlYmFwcHMtcm9sZSJdLCJzdWIiOiJhcHBpcGhvbnkiLCJpYXQiOjE2MTQ4NjI1MjMxOTUsImlzcyI6IkZ1c2lvbiJ9.PPWgchAj4REloE5H9w3lLQW5leIdfXt-NsHUFaHu_LE");
+
+
+        rm.setRequestBody(body);
+
+
+        var response = rm.execute();
+        if (response.getErrorCode()) {
+            gs.addErrorMessage(response.getErrorMessage());
+            return;
+        }
+
+        var responseBody = new JSON().decode(response.getBody());
+
+        return {
+            knowledgeArticles: responseBody.response.docs,
+            knowledgeTotal: responseBody.response.numFound
+        }
+
+    }
+
+    //------------------------GET SMEs -----------------------------//
+    function getSme(smeQuery, smeOffset) {
+        // still todo
+        var query = smeQuery || "*";
+        var offset = smeOffset || "0";
+        var method = "get";
+
+
+        var endpoint = 'https://cse-demo.lucidworkssales.com:443/api/apps/Supp-Demo/query-pipelines/Supp-Demo/collections/Supp-Demo/select?echoParams%3Dall&wt%3Djson&json.nl%3Darrarr&fl%3Dscore,*&sort&start' + encodeURI(offset) + '_lw_data_source_s%3A%28%22lw-sf%22%29&fq%3Dobject_s%3A%28%22Case%22%29&q=OwnerId_s:' + encodeURI(query) + '&rows=10';
+
+
+        var rm = new sn_ws.RESTMessageV2();
+
+
+        rm.setHttpMethod(method);
+
+
+        rm.setEndpoint(endpoint);
+
+
+        var body = {};
+
+
+        rm.setRequestHeader("Content-type", "application/json");
+        rm.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJncm91cHMiOlsiZGVmYXVsdF9ncm91cCIsIndlYmFwcHMtcm9sZSJdLCJzdWIiOiJhcHBpcGhvbnkiLCJpYXQiOjE2MTQ4NjI1MjMxOTUsImlzcyI6IkZ1c2lvbiJ9.PPWgchAj4REloE5H9w3lLQW5leIdfXt-NsHUFaHu_LE");
+
+
+        rm.setRequestBody(body);
+
+
+        var response = rm.execute();
+       
+        if (response.getErrorCode()) {
+            gs.addErrorMessage(response.getErrorMessage());
+            return;
+        }
+
+        var responseBody = new JSON().decode(response.getBody());
+       
+        return {
+            sme: responseBody.response.docs,
+            smeTotal: responseBody.response.numFound,
+            facetFields: responseBody.facet_counts.facet_fields
+        }
+
+    }
+
+    //------------------------PROCESS FACETS-----------------------------//
+    function processFacets(facets) {
+        if (!facets || facets.length == 0) {
+            return;
+        }
+        var processedFacets = [];
+        var loopLimit = Math.min(6, facets.length);
+
+        for (var i = 0; i < loopLimit; i = i + 2) {
+            processedFacets.push({
+                name: facets[i]
+            });
+        }
+
+        return processedFacets;
+
+    }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2021-03-26 06:35:02</sys_created_on>
+        <sys_id>c2a75e3e2f0320103ca8d0ccf699b67d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Search Console Widget</sys_name>
+        <sys_package display_value="Search Console" source="x_596099_search_co">c60f8a362f0320103ca8d0ccf699b64e</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Search Console">c60f8a362f0320103ca8d0ccf699b64e</sys_scope>
+        <sys_update_name>sp_widget_c2a75e3e2f0320103ca8d0ccf699b67d</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2021-03-26 06:35:02</sys_updated_on>
+        <template><![CDATA[<div style="margin :10px">
+    <!-- your widget template -->
+
+
+
+    <!--START: Tabs group here-->
+    <uib-tabset active="active" vertical="false">
+
+        <!--START: CASES TAB-->
+        <uib-tab index="0" heading="Cases" ng-click="selectCaseTab()">
+            <div  class="tab-content-container">
+                <p style="margin-right:auto;    letter-spacing: 1px;
+">
+                    OTHER ASSOCIATED CASES </p>
+                <!--START: Result Renderer -->
+                <div ng-init="setCaseScrollListener()" class="results-container" id="scrollable-case" >
+
+
+                    <!--START: Placeholder -- Loading -->
+                    <span ng-if="!!c.data.isLoading" class="placeholder-on-loading">
+                        <img src="spinner-1.svg" />
+                    </span>
+
+                    <!--END: Placeholder --Loading-->
+
+                    <!--START: Placeholder -- No Results -->
+                    <span ng-if="!c.data.isLoading && !!c.data.query && (c.data.cases==null || c.data.cases==[]) " class="placeholder-on-no-results">
+                        <img src="nodata.svg" />
+                        Could not find anything relevant!
+                    </span>
+
+                    <!--END: Placeholder -- No Results-->
+
+                    <!--START: Placeholder -- Results Display-->
+                    <div ng-if="!!c.data.cases && !c.data.isLoading" class="results-wrapper">
+
+                        <div style="padding:10px 0;" ng-repeat="resultItem in c.data.cases">
+
+                            <!--START: Case Item Template-->
+                            <div key="resultItem.Id" class="case-item">
+                                <div class="case-item__header">
+
+                                    <div class="case-item__header--content">
+                                        <h3>
+                                            <a href={url} target="_blank" data-index={index} data-obj="Case" ng-click="navigateToRecord()" data-iscase="resultItem.isCaseItem">{{resultItem.CaseNumber_s}}</a>
+                                        </h3>
+                                        <span style="background-color: rgb(241, 207, 91)">Case</span>
+                                    </div>
+                                </div>
+                                <div class="case-item__body">
+                                    <div>
+                                        <p><strong>Subject</strong></p>
+                                        <p>
+                                            {{resultItem.Subject_s}}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Contact Name</strong></p>
+                                        <p>
+                                            {{resultItem.ContactId_s}}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Date Created</strong></p>
+                                        <p>
+                                            {{resultItem.CreatedDate}}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END: Case Item Template-->
+
+                        </div>
+
+                    </div>
+
+                    <!--END: Placeholder --  Results Display-->
+
+                    <!--START: Placeholder -- SCROLL LOADER Display-->
+                  	<div ng-if="c.data.scrollCallOut" style="margin:20px auto">
+                        <img src="spinner-1.svg" height="50px" />
+                      
+                    </div>
+
+                    
+                    <!--END: Placeholder --  SCROLL LOADER Display-->
+                </div>
+
+                <!--END: Result Renderer-->
+            </div>
+        </uib-tab>
+
+        <!--END: CASES TAB-->
+
+        <!--START: KNOWLEDGE TAB-->
+        <uib-tab index="1" heading="Knowledge Articles" ng-click="selectKnowledgeTab()">
+            <div class="tab-content-container">
+                <p style="margin-right:auto;    letter-spacing: 1px;
+">
+                    RECOMMENDED KNOWLEDGE ARTICLES
+                </p>
+                <!--START: Result Renderer -->
+                <div ng-init="setKnowledgeScrollListener()" class="results-container" id="scrollable-knowledge" >
+
+
+                    <!--START: Placeholder -- Loading -->
+                    <span ng-if="!!c.data.isLoading" class="placeholder-on-loading">
+                        <img src="spinner-1.svg" />
+                    </span>
+
+                    <!--END: Placeholder --Loading-->
+
+                    <!--START: Placeholder -- No Results -->
+                    <span ng-if="!c.data.isLoading && !!c.data.query && (c.data.knowledgeArticles==null || c.data.knowledgeArticles==[]) " class="placeholder-on-no-results">
+                        <img src="nodata.svg" />
+                        Could not find anything relevant!
+                    </span>
+
+                    <!--END: Placeholder -- No Results-->
+
+                    <!--START: Placeholder -- Results Display-->
+                    <div ng-if="!!c.data.knowledgeArticles && !c.data.isLoading" class="results-wrapper">
+
+                        <div style="padding:10px 0;" ng-repeat="resultItem in c.data.knowledgeArticles">
+
+
+                            <!--START: Knowledge Template-->
+
+                            <div key="resultItem.id" class="knowledge-article">
+                                <div class="knowledge-article__header">
+
+                                    <div class="knowledge-article__header--content" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        padding: 7px 0;
+                        grid-column-gap: 10px;
+                      ">
+                                        <h3>
+                                            <a href={url} target="_blank" data-id="resultItem" data-obj='Knowledge' data-index="index" onclick="navigateToRecord" style="word-wrap: break-word" data-iscase="!!resultItem.isCaseItem">{{resultItem.attr_title_[0]}}</a>
+                                        </h3>
+                                        <span>Knowledge Article</span>
+                                    </div>
+                                </div>
+                                <div class="knowledge-article__body">
+                                    <p style="-webkit-box-orient: vertical">
+                                        {{resultItem.attr_richbody_[0]}}
+                                    </p>
+                                </div>
+                            </div>
+                            <!--END: Knowledge Template-->
+                        </div>
+
+                    </div>
+
+                    <!--END: Placeholder --  Results Display-->
+  <!--START: Placeholder -- SCROLL LOADER Display-->
+                  	<div ng-if="c.data.scrollCallOut" style="margin:20px auto">
+                        <img src="spinner-1.svg" height="50px" />
+                      
+                    </div>
+
+                    
+                    <!--END: Placeholder --  SCROLL LOADER Display-->
+               
+                </div>
+
+                <!--END: Result Renderer-->
+            </div>
+        </uib-tab>
+        <!--END: KNOWLEDGE TAB-->
+
+        <!--START: SME TAB-->
+        <uib-tab index="2" heading="SMEs" ng-click="selectSmeTab()">
+            <div class="tab-content-container">
+                <p style="margin-right:auto;    letter-spacing: 1px;
+">
+                    SUBJECT MATTER EXPERTS AT YOUR COMPANY </p>
+            </div>
+            <div class="results-container">
+
+
+                <!--START: Placeholder -- Loading -->
+                <span ng-if="!!c.data.isLoading" class="placeholder-on-loading">
+                    <img src="spinner-1.svg" />
+                </span>
+
+                <!--END: Placeholder --Loading-->
+
+                <!--START: Placeholder -- No Results -->
+                <span ng-if="!c.data.isLoading && !!c.data.query && (!c.data.sme || c.data.sme==[]) " class="placeholder-on-no-results">
+                    <img src="nodata.svg" />
+                    Could not find anything relevant!
+                </span>
+
+                <!--END: Placeholder -- No Results-->
+
+                <!--START: Placeholder -- Results Display-->
+                <div ng-if="!!c.data.sme && !c.data.isLoading" class="results-wrapper">
+
+                    <div ng-repeat="sme in c.data.sme">
+                        <div class="sme-item" key="sme.Id">
+                            <div class="sme-item__header">
+
+                                <div class="sme-item__header--content">
+                                    <h3>{{sme.name}}</h3>
+                                </div>
+                            </div>
+                            <div class="sme-item__body ">
+                                <div class="col-item">
+                                    <p><strong>Account</strong></p>
+                                    <div ng-if="sme.accounts.length>0">
+                                        <div ng-repeat="account in sme.accounts">
+                                            <p key="account.name">
+                                                {{account.name}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div ng-if="sme.accounts.length<=0">
+                                        <p>
+                                            None
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-item">
+                                    <p><strong>Version</strong></p>
+                                    <div ng-if="sme.versions.length>0">
+                                        <div ng-repeat="version in sme.versions">
+                                            <p key="version.name">
+                                                {{version.name}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div ng-if="sme.versions.length<=0">
+                                        <p>
+                                            None
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-item">
+                                    <p><strong>Product</strong></p>
+                                    <div ng-if="sme.products.length>0">
+                                        <div ng-repeat="product in sme.products">
+                                            <p key="product.name" class="slds-m-bottom_xxx-small slds-text-color_weak slds-truncate">
+                                                {{product.name}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div ng-if="sme.products.length<=0">
+                                        <p>
+                                            None
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--END: Placeholder --  Results Display-->
+
+            </div>
+
+
+
+        </uib-tab>
+        <!--END: SME TAB-->
+
+        <!--START: SEARCH TAB-->
+        <uib-tab index="3" heading="Search" ng-click="selectSearchTab()">
+            <div class="tab-content-container">
+                <p style="margin-right:auto;    letter-spacing: 1px;
+">
+                    SEARCH FOR A SPECIFIC CASE OR ARTICLE
+                </p>
+                <!--START: Search Box -->
+                <div class=" search-box">
+                    <img src="https://cdn3.iconfinder.com/data/icons/instagram-18/512/194_Instagram_Search_Sets-512.png" class="search-icon" />
+                    <input type="text" placeholder="Enter your query ..." ng-model="c.query" ng-keypress="isEnter($event)" />
+                    <button class="btn btn-primary search-btn" ng-click="c.performSearch(c.query)">
+                        Search
+                    </button>
+                </div>
+                <!--END: Search Box-->
+                <!--START: Result Renderer -->
+                <div ng-init="setSearchScrollListener()" class="results-container" id="scrollable-search" >
+
+                    <!--START: Placeholder -- Onlanding -->
+                    <span ng-if="!c.data.query && !c.data.results && !isLoading" class="placeholder-on-landing">
+
+                        Try Searching for something, eg: 'cases'
+                    </span>
+
+                    <!--END: Placeholder -- Onlanding-->
+
+                    <!--START: Placeholder -- Loading -->
+                    <span ng-if="!!c.data.isLoading" class="placeholder-on-loading">
+                        <img src="spinner-1.svg" />
+                    </span>
+
+                    <!--END: Placeholder --Loading-->
+
+                    <!--START: Placeholder -- No Results -->
+                    <span ng-if="!c.data.isLoading && !!c.data.query && (c.data.results==null || c.data.results==[]) " class="placeholder-on-no-results">
+                        <img src="nodata.svg" />
+                        Could not find anything relevant!
+                    </span>
+
+                    <!--END: Placeholder -- No Results-->
+
+                    <!--START: Placeholder -- Results Display-->
+                    <div ng-if="!!c.data.results && !c.data.isLoading" class="results-wrapper">
+
+                        <div style="padding:10px 0;" ng-repeat="resultItem in c.data.results">
+
+                            <!--START: Case Item Template-->
+                            <div ng-if="resultItem.isCaseItem === true" key="resultItem.Id" class="case-item">
+                                <div class="case-item__header">
+
+                                    <div class="case-item__header--content">
+                                        <h3>
+                                            <a href={url} target="_blank" data-index={index} data-obj="Case" ng-click="navigateToRecord()" data-iscase="resultItem.isCaseItem">{{resultItem.CaseNumber_s}}</a>
+                                        </h3>
+                                        <span style="background-color: rgb(241, 207, 91)">Case</span>
+                                    </div>
+                                </div>
+                                <div class="case-item__body">
+                                    <div>
+                                        <p><strong>Subject</strong></p>
+                                        <p>
+                                            {{resultItem.Subject_s}}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Contact Name</strong></p>
+                                        <p>
+                                            {{resultItem.ContactId_s}}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Date Created</strong></p>
+                                        <p>
+                                            {{resultItem.CreatedDate}}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END: Case Item Template-->
+
+                            <!--START: Knowledge Template-->
+
+                            <div ng-if="!!resultItem.isKnowledgeItem " key="resultItem.id" class="knowledge-article">
+                                <div class="knowledge-article__header">
+
+                                    <div class="knowledge-article__header--content" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        padding: 7px 0;
+                        grid-column-gap: 10px;
+                      ">
+                                        <h3>
+                                            <a href={url} target="_blank" data-id="resultItem" data-obj='Knowledge' data-index="index" onclick="navigateToRecord" style="word-wrap: break-word" data-iscase="!!resultItem.isCaseItem">{{resultItem.attr_title_[0]}}</a>
+                                        </h3>
+                                        <span>Knowledge Article</span>
+                                    </div>
+                                </div>
+                                <div class="knowledge-article__body">
+                                    <p style="-webkit-box-orient: vertical">
+                                        {{resultItem.attr_richbody_[0]}}
+                                    </p>
+                                </div>
+                            </div>
+                            <!--END: Knowledge Template-->
+                        </div>
+
+                    </div>
+<!--START: Placeholder -- SCROLL LOADER Display-->
+                  	<div ng-if="c.data.scrollCallOut" style="margin:20px auto">
+                        <img src="spinner-1.svg" height="50px" />
+                      
+                    </div>
+
+                    
+                    <!--END: Placeholder --  SCROLL LOADER Display-->
+               
+          
+                    <!--END: Placeholder --  Results Display-->
+
+                </div>
+
+                <!--END: Result Renderer-->    </div>
+        </uib-tab>
+        <!--END: SEARCH TAB-->
+    </uib-tabset>
+    <!--END: Tabs group here-->
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

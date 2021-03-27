@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_widgets">
+    <sys_widgets action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <name>Console Search Widget</name>
+        <order>100</order>
+        <renderer/>
+        <renderer_type>javascript</renderer_type>
+        <roles>admin</roles>
+        <script/>
+        <sys_class_name>sys_widgets</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2021-03-26 06:32:06</sys_created_on>
+        <sys_id>a7d6163e2f0320103ca8d0ccf699b6d6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Console Search Widget</sys_name>
+        <sys_package display_value="Search Console" source="x_596099_search_co">c60f8a362f0320103ca8d0ccf699b64e</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Search Console">c60f8a362f0320103ca8d0ccf699b64e</sys_scope>
+        <sys_update_name>sys_widgets_a7d6163e2f0320103ca8d0ccf699b6d6</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2021-03-26 06:32:06</sys_updated_on>
+        <top_level_category>false</top_level_category>
+    </sys_widgets>
+</record_update>
